@@ -8,6 +8,7 @@ if ( ! defined( '\ABSPATH' ) ) {
 }
 
 use DevWael\WpPostsReceiver\Languages\Localization;
+use DevWael\WpPostsReceiver\Rest\EndPoint;
 
 class Main {
 
@@ -20,6 +21,11 @@ class Main {
 	 * @var Localization
 	 */
 	private Localization $localization;
+
+	/**
+	 * @var EndPoint
+	 */
+	private EndPoint $endpoint;
 
 	/**
 	 * Get instance
@@ -38,7 +44,8 @@ class Main {
 	 * Constructor
 	 */
 	private function __construct() {
-		$this->localization  = new Localization();
+		$this->localization = new Localization();
+		$this->endpoint     = new Endpoint();
 	}
 
 	/**
@@ -48,5 +55,6 @@ class Main {
 	 */
 	public function init(): void {
 		$this->localization->load_hooks();
+		$this->endpoint->load_hooks();
 	}
 }
