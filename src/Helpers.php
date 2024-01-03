@@ -36,6 +36,19 @@ class Helpers {
 	}
 
 	/**
+	 * Update ACF field
+	 *
+	 * @param string $selector ACF field selector.
+	 * @param mixed  $value    ACF field value.
+	 * @param mixed  $post_id  Post ID.
+	 *
+	 * @return bool
+	 */
+	public static function update_acf_field( $selector, $value, $post_id = false ) {
+		return function_exists( '\update_field' ) ? \update_field( $selector, $value, $post_id ) : false;
+	}
+
+	/**
 	 * Get sites rest endpoint.
 	 *
 	 * @return string Sites rest endpoint.
