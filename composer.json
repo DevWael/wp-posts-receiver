@@ -40,7 +40,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "AiPoemGenerator\\Tests\\Unit\\": "tests/PHPUnit/Unit/"
+      "WpPostsReceiver\\Tests\\Unit\\": "tests/PHPUnit/Unit/"
     }
   },
   "scripts": {
