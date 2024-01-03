@@ -7,7 +7,25 @@ if ( ! defined( '\ABSPATH' ) ) {
 	exit;
 }
 
+use DevWael\WpPostsReceiver\Helpers;
+use DevWael\WpPostsReceiver\PostsCreator;
+
+
 class EndPoint {
+
+	/**
+	 * @var PostsCreator
+	 */
+	private ?PostsCreator $posts_creator;
+
+	public function __construct( PostsCreator $posts_creator = null ) {
+		if ( ! $posts_creator ) {
+			$posts_creator = new PostsCreator();
+		}
+
+		$this->posts_creator = $posts_creator;
+	}
+
 	/**
 	 * Load hooks
 	 *
@@ -30,7 +48,6 @@ class EndPoint {
 			'args'                => [
 				'post_data'   => [
 					'required' => true,
-					'type'     => 'array',
 				],
 				'encrypt_key' => [
 					'required'          => true,
@@ -44,9 +61,22 @@ class EndPoint {
 	/**
 	 * Receive posts.
 	 *
-	 * @return void
+	 * @return \WP_REST_Response Response.
 	 */
 	public function receive_posts( \WP_REST_Request $request ) {
+		$post_data = $request->get_param( 'post_data' );
+		if ( empty( $post_data ) ) {
+			return new \WP_REST_Response( [ 'message' => __( 'Post data is empty.', 'wp-posts-receiver' ) ], 400 );
+		}
+
+		$this->posts_creator->set_post_data( $post_data );
+		$result = $this->posts_creator->create_post();
+
+		if ( is_wp_error( $result ) ) {
+			return new \WP_REST_Response( [ 'message' => $result->get_error_message() ], 400 );
+		}
+
+		return new \WP_REST_Response( [ 'message' => __( 'Post created successfully.', 'wp-posts-receiver' ) ], 200 );
 	}
 
 	/**
@@ -73,6 +103,9 @@ class EndPoint {
 	 * @return bool True if the request is valid, false otherwise.
 	 */
 	public function validate_encrypt_key( $param, \WP_REST_Request $request, $key ): bool {
-		return true;
+		$encrypt_key         = \sanitize_text_field( $param );
+		$current_encrypt_key = \sanitize_text_field( Helpers::get_acf_field( 'wp_posts_sender_encryption_key', 'option' ) );
+
+		return $encrypt_key === $current_encrypt_key;
 	}
 }
