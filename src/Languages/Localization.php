@@ -25,7 +25,7 @@ class Localization {
 	 */
 	public function load_text_domain(): void {
 		load_plugin_textdomain(
-			'wp-posts-sender',
+			'wp-posts-receiver',
 			false,
 			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
 		);
