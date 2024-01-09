@@ -42,7 +42,7 @@ class PostsCreator {
 	 * @return false|int|\WP_Error Post ID on success. The value 0 or WP_Error on failure.
 	 */
 	public function create_post() {
-		$result = \wp_insert_post(
+		$post_id = \wp_insert_post(
 			[
 				'post_title'   => sanitize_text_field( $this->post_data['post_title'] ),
 				'post_content' => wp_kses_post( $this->post_data['post_content'] ),
@@ -54,25 +54,25 @@ class PostsCreator {
 			true
 		);
 
-		if ( is_wp_error( $result ) ) {
-			return $result;
+		if ( is_wp_error( $post_id ) ) {
+			return $post_id;
 		}
 
 		// set post-taxonomies
 		if ( isset( $this->post_data['post_taxonomies'] ) && is_array( $this->post_data['post_taxonomies'] ) ) {
-			$this->set_post_taxonomies( $this->post_data['post_taxonomies'], $result );
+			$this->set_post_taxonomies( $this->post_data['post_taxonomies'], $post_id );
 		}
 		// set post-thumbnail from thumb url
 		if ( isset( $this->post_data['post_image'] ) && ! empty( $this->post_data['post_image'] ) ) {
-			$this->set_post_thumbnail( esc_url_raw( $this->post_data['post_image'] ), $result );
+			$this->set_post_thumbnail( esc_url_raw( $this->post_data['post_image'] ), $post_id );
 		}
 
 		// set post acf fields
 		if ( isset( $this->post_data['post_acf_fields'] ) && is_array( $this->post_data['post_acf_fields'] ) ) {
-			$this->set_acf_fields( $this->post_data['post_acf_fields'], $result );
+			$this->set_acf_fields( $this->post_data['post_acf_fields'], $post_id );
 		}
 
-		return $result;
+		return $post_id;
 	}
 
 	/**
