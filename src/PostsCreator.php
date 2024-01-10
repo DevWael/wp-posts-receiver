@@ -21,7 +21,6 @@ class PostsCreator {
 	private array $post_data;
 
 	public function __construct( array $post_data = [] ) {
-		$this->default_post_status = $this->get_default_post_status();
 		if ( ! empty( $post_data ) ) {
 			$this->post_data = $post_data;
 		}
@@ -46,7 +45,7 @@ class PostsCreator {
 			[
 				'post_title'   => sanitize_text_field( $this->post_data['post_title'] ),
 				'post_content' => wp_kses_post( $this->post_data['post_content'] ),
-				'post_status'  => sanitize_text_field( $this->default_post_status ),
+				'post_status'  => sanitize_text_field( $this->get_default_post_status() ),
 				'post_type'    => sanitize_text_field( $this->post_data['post_type'] ),
 				'post_excerpt' => wp_kses_post( $this->post_data['post_excerpt'] ),
 				'post_author'  => sanitize_text_field( $this->post_data['post_author'] ),
@@ -204,11 +203,18 @@ class PostsCreator {
 	 * @return false|mixed
 	 */
 	private function get_default_post_status() {
+		$status = Helpers::get_acf_field( 'wp_posts_receiver_default_post_status', 'option' );
+		if ( $status ) {
+			$status = 'draft';
+		}
+
 		/**
 		 * Filter default post status.
 		 *
+		 * @param string $status Default post status.
+		 *
 		 * @since 1.0.0
 		 */
-		return apply_filters( 'wp_posts_receiver_default_post_status', Helpers::get_acf_field( 'wp_posts_receiver_default_post_status', 'option' ) );
+		return apply_filters( 'wp_posts_receiver_default_post_status', $status );
 	}
 }
