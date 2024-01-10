@@ -109,7 +109,7 @@ class PostsCreator {
 	 * @param $post_id    int post id
 	 */
 	private function set_post_thumbnail( $post_image, $post_id ): void {
-		$attach_id = $this->download_image( $post_image );
+		$attach_id = $this->download_image( $post_image, $post_id );
 		if ( $attach_id ) {
 			\set_post_thumbnail( $post_id, $attach_id );
 		}
@@ -129,7 +129,7 @@ class PostsCreator {
 		$post_acf_fields = $this->parse_images( $post_acf_fields, $post_id );
 		// update the post acf fields
 		foreach ( $post_acf_fields as $group_key => $group_value ) {
-			\update_field( $group_key, $group_value, $post_id );
+			Helpers::update_acf_field( $group_key, $group_value, $post_id );
 		}
 
 		delete_post_meta( $post_id, 'dw_post_fields' );
@@ -138,7 +138,7 @@ class PostsCreator {
 	private function parse_images( $post_acf_fields, $post_id ) {
 		foreach ( $post_acf_fields as $group_key => $group_value ) {
 			if ( is_array( $group_value ) && isset( $group_value['url'] ) ) {
-				$attach_id = $this->download_image( $group_value['url'] );
+				$attach_id = $this->download_image( $group_value['url'], $post_id );
 				if ( $attach_id ) {
 					$post_acf_fields[ $group_key ]['id'] = $attach_id;
 					$post_acf_fields[ $group_key ]['ID'] = $attach_id;
@@ -162,11 +162,12 @@ class PostsCreator {
 	/**
 	 * Download image from url and return the attachment id.
 	 *
-	 * @param $image_url
+	 * @param $image_url string url
+	 * @param $post_id   int post id
 	 *
 	 * @return false|int|\WP_Error
 	 */
-	private function download_image( $image_url ) {
+	private function download_image( $image_url, $post_id = false ) {
 		require_once( ABSPATH . 'wp-admin/includes/media.php' );
 		require_once( ABSPATH . 'wp-admin/includes/file.php' );
 		require_once( ABSPATH . 'wp-admin/includes/image.php' );
@@ -184,7 +185,7 @@ class PostsCreator {
 			return false;
 		}
 
-		$attach_id = media_sideload_image( $image_url, 0, '', 'id' );
+		$attach_id = media_sideload_image( $image_url, $post_id, '', 'id' );
 
 		// Generate metadata and update the attachment
 		$attach_data = wp_generate_attachment_metadata( $attach_id, get_attached_file( $attach_id ) );
