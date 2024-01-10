@@ -117,7 +117,7 @@ class EndPoint {
 	 */
 	public function validate_encrypt_key( $param, \WP_REST_Request $request, $key ): bool {
 		$encrypt_key         = \sanitize_text_field( $param );
-		$current_encrypt_key = \sanitize_text_field( Helpers::get_acf_field( 'wp_posts_sender_encryption_key', 'option' ) );
+		$current_encrypt_key = \sanitize_text_field( Helpers::get_acf_field( 'wp_posts_receiver_encryption_key', 'option' ) );
 
 		return $encrypt_key === $current_encrypt_key;
 	}
