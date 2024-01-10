@@ -33,6 +33,7 @@ class EndPoint {
 	 */
 	public function load_hooks() {
 		add_action( 'rest_api_init', [ $this, 'register_end_point' ] );
+		add_action( 'wp_posts_receiver_create_post', [ $this, 'parse_fields' ] );
 	}
 
 	/**
@@ -77,6 +78,17 @@ class EndPoint {
 		}
 
 		return new \WP_REST_Response( [ 'message' => __( 'Post created successfully.', 'wp-posts-receiver' ) ], 200 );
+	}
+
+	/**
+	 * Parse the post ACF fields.
+	 * @param $post_id
+	 *
+	 * @return void
+	 */
+	public function parse_fields( $post_id ) {
+		// log post data
+		$this->posts_creator->set_acf_fields( $post_id );
 	}
 
 	/**
