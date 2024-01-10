@@ -30,7 +30,7 @@
   "require-dev": {
     "brain/monkey": "^2.6.1",
     "dealerdirect/phpcodesniffer-composer-installer": "^1.0.0",
-    "paulthewalton/acf-pro-stubs": "5.8.9.1",
+    "php-stubs/acf-pro-stubs": "^6.1",
     "phpcompatibility/phpcompatibility-wp": "^2.1.4",
     "phpunit/phpunit": "^8.5 || ^9.6.8",
     "wp-coding-standards/wpcs": "^2.3.0"
