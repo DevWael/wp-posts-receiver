@@ -21,6 +21,9 @@ define( 'WP_POSTS_RECEIVER_PLUGIN_URL', \plugin_dir_url( __FILE__ ) );
 define( 'WP_POSTS_RECEIVER_PLUGIN_DIR', \plugin_dir_path( __FILE__ ) );
 
 require_once WP_POSTS_RECEIVER_PLUGIN_DIR . 'vendor/autoload.php';
+if ( ! function_exists( 'as_enqueue_async_action' ) ) {
+	require_once WP_POSTS_RECEIVER_PLUGIN_DIR . 'vendor/woocommerce/action-scheduler/action-scheduler.php';
+}
 
 use DevWael\WpPostsReceiver\Main;
 
