@@ -1,0 +1,69 @@
+{
+    "key": "group_65949dfa87bd8",
+    "title": "Posts Receiver Settings",
+    "fields": [
+        {
+            "key": "field_65949e13a4884",
+            "label": "Encryption Key",
+            "name": "wp_posts_receiver_encryption_key",
+            "type": "textarea",
+            "instructions": "The encryption key must be the same on sender sites.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": "",
+            "new_lines": ""
+        },
+        {
+            "key": "field_65949e5ca4885",
+            "label": "Default post status",
+            "name": "wp_posts_receiver_default_post_status",
+            "type": "select",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "draft": "Draft",
+                "publish": "Publish"
+            },
+            "default_value": "draft",
+            "allow_null": 0,
+            "multiple": 0,
+            "ui": 1,
+            "ajax": 0,
+            "return_format": "value",
+            "placeholder": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "wp-posts-receiver-settings"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1704238823
+}
