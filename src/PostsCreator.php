@@ -167,6 +167,9 @@ class PostsCreator {
 	 * @return false|int|\WP_Error
 	 */
 	private function download_image( $image_url ) {
+		require_once( ABSPATH . 'wp-admin/includes/media.php' );
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		require_once( ABSPATH . 'wp-admin/includes/image.php' );
 		// Check if the file is an image
 		$image_info = getimagesize( $image_url );
 		if ( ! $image_info ) {
@@ -184,7 +187,7 @@ class PostsCreator {
 		$attach_id = media_sideload_image( $image_url, 0, '', 'id' );
 
 		// Generate metadata and update the attachment
-		$attach_data = wp_generate_attachment_metadata( $attach_id, $upload['file'] );
+		$attach_data = wp_generate_attachment_metadata( $attach_id, get_attached_file( $attach_id ) );
 		wp_update_attachment_metadata( $attach_id, $attach_data );
 
 		return $attach_id;
