@@ -69,13 +69,14 @@ class EndPoint {
 		if ( empty( $post_data ) ) {
 			return new \WP_REST_Response( [ 'message' => __( 'Post data is empty.', 'wp-posts-receiver' ) ], 400 );
 		}
-
 		$this->posts_creator->set_post_data( $post_data );
-		$result = $this->posts_creator->create_post();
-
-		if ( is_wp_error( $result ) ) {
-			return new \WP_REST_Response( [ 'message' => $result->get_error_message() ], 400 );
+		$post_id = $this->posts_creator->create_post();
+		if($post_id){
+			if ( ! as_has_scheduled_action( 'wp_posts_receiver_create_post', array( $post_id ) ) ) {
+				as_enqueue_async_action( 'wp_posts_receiver_create_post', array( $post_id ) );
+			}
 		}
+
 
 		return new \WP_REST_Response( [ 'message' => __( 'Post created successfully.', 'wp-posts-receiver' ) ], 200 );
 	}

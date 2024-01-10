@@ -68,7 +68,7 @@ class PostsCreator {
 
 		// set post acf fields
 		if ( isset( $this->post_data['post_acf_fields'] ) && is_array( $this->post_data['post_acf_fields'] ) ) {
-			$this->set_acf_fields( $this->post_data['post_acf_fields'], $post_id );
+			update_post_meta( $post_id, 'dw_post_fields', $this->post_data['post_acf_fields'] );
 		}
 
 		return $post_id;
@@ -118,35 +118,45 @@ class PostsCreator {
 	/**
 	 * Set post acf fields.
 	 *
-	 * @param $post_acf_fields  array of acf fields
 	 * @param $post_id          int post id
 	 */
-	private function set_acf_fields( $post_acf_fields, $post_id ): void {
-		foreach ( $post_acf_fields as $key => $value ) {
-			// check if the field is an image
-			if ( is_array( $value ) && isset( $value['ID'] ) ) {
-				$attach_id = $this->download_image( $value['url'] );
+	public function set_acf_fields( $post_id ) {
+		$post_acf_fields = get_post_meta( $post_id, 'dw_post_fields', true );
+		if ( ! $post_acf_fields ) {
+			return;
+		}
+		// loop for the images
+		$post_acf_fields = $this->parse_images( $post_acf_fields, $post_id );
+		// update the post acf fields
+		foreach ( $post_acf_fields as $group_key => $group_value ) {
+			\update_field( $group_key, $group_value, $post_id );
+		}
+
+		delete_post_meta( $post_id, 'dw_post_fields' );
+	}
+
+	private function parse_images( $post_acf_fields, $post_id ) {
+		foreach ( $post_acf_fields as $group_key => $group_value ) {
+			if ( is_array( $group_value ) && isset( $group_value['url'] ) ) {
+				$attach_id = $this->download_image( $group_value['url'] );
 				if ( $attach_id ) {
-					$value['ID'] = $attach_id;
-				}
-			} else {
-				// check if the field is a repeater
-				if ( is_array( $value ) && isset( $value[0] ) ) {
-					foreach ( $value as $repeater_key => $repeater_value ) {
-						// check if the repeater field is an image
-						if ( is_array( $repeater_value ) && isset( $repeater_value['ID'] ) ) {
-							$attach_id = $this->download_image( esc_url_raw( $repeater_value['url'] ) );
-							if ( $attach_id ) {
-								$repeater_value['ID'] = $attach_id;
-							}
+					$post_acf_fields[ $group_key ]['id'] = $attach_id;
+					$post_acf_fields[ $group_key ]['ID'] = $attach_id;
+					// remove the other keys except id and ID
+					foreach ( $post_acf_fields[ $group_key ] as $key => $value ) {
+						if ( $key !== 'id' && $key !== 'ID' ) {
+							unset( $post_acf_fields[ $group_key ][ $key ] );
 						}
 					}
 				}
+			} else {
+				if ( is_array( $group_value ) ) {
+					$post_acf_fields[ $group_key ] = $this->parse_images( $group_value, $post_id );
+				}
 			}
-
-			// update the acf field
-			Helpers::update_acf_field( $key, $value, $post_id );
 		}
+
+		return $post_acf_fields;
 	}
 
 	/**
@@ -171,24 +181,7 @@ class PostsCreator {
 			return false;
 		}
 
-		// Prepare an array with the image file data
-		$upload = wp_upload_bits( basename( $image_url ), null, $response['body'] );
-
-		// Check if the upload was successful
-		if ( $upload['error'] ) {
-			return false;
-		}
-
-		// Set up the attachment data
-		$attachment = array(
-			'post_mime_type' => $image_info['mime'],
-			'post_title'     => sanitize_file_name( pathinfo( $upload['file'], PATHINFO_FILENAME ) ),
-			'post_content'   => '',
-			'post_status'    => 'inherit',
-		);
-
-		// Insert the attachment
-		$attach_id = wp_insert_attachment( $attachment, $upload['file'] );
+		$attach_id = media_sideload_image( $image_url, 0, '', 'id' );
 
 		// Generate metadata and update the attachment
 		$attach_data = wp_generate_attachment_metadata( $attach_id, $upload['file'] );
