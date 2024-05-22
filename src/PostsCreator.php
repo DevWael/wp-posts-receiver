@@ -71,6 +71,14 @@ class PostsCreator {
 			update_post_meta( $post_id, 'dw_post_fields', $this->post_data['post_acf_fields'] );
 		}
 
+		if ( isset( $this->post_data['page_template'] ) && $this->post_data['page_template'] ) {
+			$page_template = sanitize_text_field( $this->post_data['page_template'] );
+			$page_templates = wp_get_theme()->get_page_templates();
+			if( isset( $page_templates[ $page_template ] ) ){
+				update_post_meta( $post_id, '_wp_page_template', $page_template );
+			}
+		}
+
 		return $post_id;
 	}
 
